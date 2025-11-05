@@ -43,18 +43,25 @@ const DEV_ORIGINS = [
   "http://127.0.0.1:5175",
 ];
 
+const CLIENT_URL = process.env.CLIENT_URL; // set by Render later (your Netlify URL)
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow same-origin (no origin header), and known dev origins
-      if (!origin || DEV_ORIGINS.includes(origin)) {
+      // Allow same-origin (no origin header)
+      if (!origin) return callback(null, true);
+
+      // Allow local dev origins or the configured production client URL
+      if (DEV_ORIGINS.includes(origin) || (CLIENT_URL && origin === CLIENT_URL)) {
         return callback(null, true);
       }
+
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
 );
+
 
 // Apply a global API rate limiter (per user/IP) for write operations only
 app.use((req, res, next) => {
@@ -75,13 +82,34 @@ app.use("/api/calls", callRoutes);
 app.use("/api/group-calls", groupCallRoutes);
 app.use("/api/otp", otpRoutes);
 
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+// Lightweight health check for uptime monitoring and local diagnostics
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    env: process.env.NODE_ENV || "development",
+    port: PORT,
+    timestamp: new Date().toISOString(),
   });
+});
+
+import fs from "fs";
+
+// -------------------------------
+// Serve frontend only if it exists
+// -------------------------------
+const frontendDist = path.join(__dirname, "../frontend/dist");
+if (fs.existsSync(frontendDist)) {
+  app.use(express.static(frontendDist));
+
+  app.get("/*", (req, res) => {
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+
+  logger.log("✅ Frontend static assets found — serving from ", frontendDist);
+} else {
+  logger.log("⚠️ Frontend dist not found. Skipping static file serving (backend-only mode).");
 }
+
 
 server.listen(PORT, () => {
   logger.log("server is running on PORT:" + PORT);
