@@ -108,6 +108,14 @@ if (fs.existsSync(frontendDist)) {
   logger.log("✅ Frontend static assets found — serving from ", frontendDist);
 } else {
   logger.log("⚠️ Frontend dist not found. Skipping static file serving (backend-only mode).");
+  // In backend-only deployments (e.g., Render), redirect root to CLIENT_URL if provided
+  app.get("/", (req, res) => {
+    if (CLIENT_URL) return res.redirect(CLIENT_URL);
+    return res.status(200).json({
+      status: "backend-only",
+      message: "Frontend is not bundled on this server. Set CLIENT_URL to your deployed frontend.",
+    });
+  });
 }
 
 
