@@ -1,4 +1,4 @@
-# ✨ Chatty — Full Stack Realtime Chat App ✨
+# ✨ Chat4u — Full Stack Realtime Chat App ✨
 
 ![Screenshot](/frontend/public/login-screenshot.png)
 
@@ -117,7 +117,7 @@ Two approaches:
 - Group member add errors: confirm you’re an admin and the group size <= 12.
 
 ## Trademark & Notices
-- “Chatty” and associated branding are project identifiers. If you publish under your own brand, update names and assets accordingly.
+- “Chat4u” and associated branding are project identifiers. If you publish under your own brand, update names and assets accordingly.
 - Google, Cloudinary, MongoDB, Netlify, Render, Railway are trademarks of their respective owners. Use of these services is subject to their terms.
 
 ## License
