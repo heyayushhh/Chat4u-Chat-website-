@@ -8,7 +8,10 @@ import { initializeGlobalMessageListeners, useChatStore } from "./useChatStore";
 import { initializeGroupMessageListeners, useGroupStore } from "./useGroupStore";
 import { initializeGroupCallSocketListeners } from "./useGroupCallStore";
 
-const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:5001" : "/";
+// Derive backend origin for Socket.IO from API base
+// If VITE_API_BASE_URL ends with /api, strip it to get the origin
+const API_BASE = (import.meta.env?.VITE_API_BASE_URL || (import.meta.env.MODE === "development" ? "http://localhost:5001/api" : "/api")).replace(/\/+$/, "");
+const BASE_URL = API_BASE.replace(/\/api$/, "");
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -178,6 +181,7 @@ export const useAuthStore = create((set, get) => ({
       query: {
         userId: authUser._id,
       },
+      withCredentials: true,
     });
     socket.connect();
 
