@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User, AtSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import AuthImagePattern from "../components/AuthImagePattern";
@@ -10,18 +10,23 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
+    username: "",
     email: "",
     password: "",
+    termsAccepted: false,
+    otpCode: "",
   });
 
   const { signup, isSigningUp } = useAuthStore();
 
   const validateForm = () => {
     if (!formData.fullName.trim()) return toast.error("Full name is required");
+    if (!formData.username.trim()) return toast.error("Username is required");
     if (!formData.email.trim()) return toast.error("Email is required");
     if (!/\S+@\S+\.\S+/.test(formData.email)) return toast.error("Invalid email format");
     if (!formData.password) return toast.error("Password is required");
     if (formData.password.length < 6) return toast.error("Password must be at least 6 characters");
+    if (!formData.termsAccepted) return toast.error("You must accept Terms & Conditions");
 
     return true;
   };
@@ -31,7 +36,16 @@ const SignUpPage = () => {
 
     const success = validateForm();
 
-    if (success === true) signup(formData);
+    if (success === true) {
+      const payload = {
+        fullName: formData.fullName,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        termsAccepted: !!formData.termsAccepted,
+      };
+      signup(payload);
+    }
   };
 
   return (
@@ -74,6 +88,24 @@ const SignUpPage = () => {
 
             <div className="form-control">
               <label className="label">
+                <span className="label-text font-medium">Username</span>
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <AtSign className="size-5 text-base-content/40" />
+                </div>
+                <input
+                  type="text"
+                  className={`input input-bordered w-full pl-10`}
+                  placeholder="john"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
                 <span className="label-text font-medium">Email</span>
               </label>
               <div className="relative">
@@ -88,7 +120,10 @@ const SignUpPage = () => {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
+              {/* Email verification removed */}
             </div>
+
+            
 
             <div className="form-control">
               <label className="label">
@@ -119,6 +154,19 @@ const SignUpPage = () => {
               </div>
             </div>
 
+            {/* Terms & Conditions (moved below password) */}
+            <div className="form-control">
+              <label className="cursor-pointer label">
+                <span className="label-text">I accept the Terms & Conditions</span>
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={formData.termsAccepted}
+                  onChange={(e) => setFormData({ ...formData, termsAccepted: e.target.checked })}
+                />
+              </label>
+            </div>
+
             <button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>
               {isSigningUp ? (
                 <>
@@ -145,7 +193,6 @@ const SignUpPage = () => {
       {/* right side */}
 
       <AuthImagePattern
-        title="Join our community"
         subtitle="Connect with friends, share moments, and stay in touch with your loved ones."
       />
     </div>

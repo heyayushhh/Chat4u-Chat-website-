@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import AuthImagePattern from "../components/AuthImagePattern";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+// Removed Google OAuth and Terms checkbox
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,6 +17,8 @@ const LoginPage = () => {
     e.preventDefault();
     login(formData);
   };
+
+  // Google login removed
 
   return (
     <div className="h-screen grid lg:grid-cols-2">
@@ -97,6 +100,31 @@ const LoginPage = () => {
             </button>
           </form>
 
+          {/* OAuth removed; keep email/password login only */}
+
+          {/* Terms & Privacy notice */}
+          <div className="text-center text-sm">
+            <span className="text-base-content/60">By signing in, you agree to our </span>
+            <a
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link link-primary"
+            >
+              Terms & Conditions
+            </a>
+            <span className="text-base-content/60"> and </span>
+            <a
+              href="/terms#privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="link link-primary"
+            >
+              Privacy Policy
+            </a>
+            .
+          </div>
+
           <div className="text-center">
             <p className="text-base-content/60">
               Don&apos;t have an account?{" "}
@@ -110,7 +138,6 @@ const LoginPage = () => {
 
       {/* Right Side - Image/Pattern */}
       <AuthImagePattern
-        title={"Welcome back!"}
         subtitle={"Sign in to continue your conversations and catch up with your messages."}
       />
     </div>

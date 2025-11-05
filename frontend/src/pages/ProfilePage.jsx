@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
-import { Camera, Mail, User } from "lucide-react";
+import { Camera, Mail, User, AtSign, Trash2, Info } from "lucide-react";
 
 const ProfilePage = () => {
-  const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+  const { authUser, isUpdatingProfile, updateProfile, deleteAccount } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
+  const [description, setDescription] = useState("");
+
+  useEffect(() => {
+    setDescription(authUser?.description || "");
+  }, [authUser?.description]);
+
+  const wordCount = useMemo(() => {
+    return String(description || "").trim().split(/\s+/).filter(Boolean).length;
+  }, [description]);
+  const isDescTooLong = wordCount > 20;
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -76,10 +86,47 @@ const ProfilePage = () => {
 
             <div className="space-y-1.5">
               <div className="text-sm text-zinc-400 flex items-center gap-2">
+                <AtSign className="w-4 h-4" />
+                Username
+              </div>
+              <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.username}</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="text-sm text-zinc-400 flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Email Address
               </div>
               <p className="px-4 py-2.5 bg-base-200 rounded-lg border">{authUser?.email}</p>
+            </div>
+
+            {/* description field */}
+            <div className="space-y-1.5">
+              <div className="text-sm text-zinc-400 flex items-center gap-2">
+                <Info className="w-4 h-4" />
+                Description
+              </div>
+              <textarea
+                className={`textarea textarea-bordered w-full ${isDescTooLong ? "border-error" : ""}`}
+                rows={3}
+                placeholder="Tell others about you (max 20 words)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <div className="flex items-center justify-between text-xs">
+                <span className={isDescTooLong ? "text-error" : "text-zinc-400"}>
+                  {wordCount}/20 words
+                </span>
+                <button
+                  className={`btn btn-primary btn-sm ${isUpdatingProfile ? "loading" : ""}`}
+                  disabled={isDescTooLong || isUpdatingProfile}
+                  onClick={async () => {
+                    await updateProfile({ description: description.trim() });
+                  }}
+                >
+                  Save Description
+                </button>
+              </div>
             </div>
           </div>
 
@@ -92,8 +139,27 @@ const ProfilePage = () => {
               </div>
               <div className="flex items-center justify-between py-2">
                 <span>Account Status</span>
-                <span className="text-green-500">Active</span>
+                <span className={authUser?.isDeleted ? "text-red-500" : "text-green-500"}>
+                  {authUser?.isDeleted ? "Dead user" : "Active"}
+                </span>
               </div>
+            </div>
+            <div className="mt-6">
+              <button
+                className="btn btn-error btn-outline w-full gap-2"
+                onClick={() => {
+                  if (
+                    confirm(
+                      "Delete your account? This will mark it as a dead user. You can reactivate by signing up again with the same email or username."
+                    )
+                  ) {
+                    deleteAccount();
+                  }
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+                Delete Account
+              </button>
             </div>
           </div>
         </div>
