@@ -34,14 +34,14 @@ export const googleRedirect = async (req, res) => {
     res.cookie("oauth_state", state, {
       maxAge: 5 * 60 * 1000,
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
-      secure: process.env.NODE_ENV !== "development",
+      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "development" ? false : true,
     });
     res.cookie("oauth_nonce", nonce, {
       maxAge: 5 * 60 * 1000,
       httpOnly: true,
-      sameSite: process.env.NODE_ENV === "development" ? "lax" : "strict",
-      secure: process.env.NODE_ENV !== "development",
+      sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+      secure: process.env.NODE_ENV === "development" ? false : true,
     });
 
     const base = process.env.OAUTH_CALLBACK_BASE || "http://localhost:5001";
@@ -70,9 +70,23 @@ export const googleCallback = async (req, res) => {
     const state = req.cookies?.oauth_state;
     const nonce = req.cookies?.oauth_nonce;
     
-    // Clear cookies immediately
-    try { res.cookie("oauth_state", "", { maxAge: 0 }); } catch {}
-    try { res.cookie("oauth_nonce", "", { maxAge: 0 }); } catch {}
+    // Clear cookies immediately; match attributes for cross-site deletion
+    try {
+      res.cookie("oauth_state", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+        secure: process.env.NODE_ENV === "development" ? false : true,
+      });
+    } catch {}
+    try {
+      res.cookie("oauth_nonce", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: process.env.NODE_ENV === "development" ? "lax" : "none",
+        secure: process.env.NODE_ENV === "development" ? false : true,
+      });
+    } catch {}
 
     const currentUrl = new URL(`${req.protocol}://${req.get('host')}${req.originalUrl}`);
     

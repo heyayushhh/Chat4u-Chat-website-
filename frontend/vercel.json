@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://chat4u-chat-website.onrender.com/api/:path*" },
+    { "source": "/socket.io/:path*", "destination": "https://chat4u-chat-website.onrender.com/socket.io/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
