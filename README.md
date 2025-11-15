@@ -1,7 +1,5 @@
 # ✨ Chat4u — Full Stack Realtime Chat App ✨
 
-![Screenshot](/frontend/public/login-screenshot.png)
-
 Chat4U is a full-stack chat application built with the MERN stack and Socket.IO. It supports direct messages, group chats, online presence, media attachments, and group calls, with a modern UI using TailwindCSS and DaisyUI.
 
 ## Features
